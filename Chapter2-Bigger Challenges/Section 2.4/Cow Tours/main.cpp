@@ -44,12 +44,12 @@ int findset(int u) {
 void unionset(int u, int v) {
     int ru = findset(u), rv = findset(v);
     if (ru == rv) return;
-    if (rank[u] < rank[v]) {
-        par[u] = v;
-        rank[v] += rank[u];
+    if (rank[ru] < rank[rv]) {
+        par[ru] = rv;
+        rank[rv] += rank[ru];
     } else {
-        par[v] = par[u];
-        rank[u] += rank[v];
+        par[rv] = par[ru];
+        rank[ru] += rank[rv];
     }
 }
 
@@ -87,12 +87,15 @@ int main()
 
     for (int i = 0; i < N; i++) {
         findset(i);
+        dist[i][i] = 0;
     }
     for (int i = 0; i < N; i++) {
         dist[i][i] = 0;
-        for (int j = i + 1; j < N; j++) {
+        for (int j = 0; j < N; j++) {
+            if (i == j) continue;
             if (par[i] == par[j]) {
                 rad[par[i]] = max(rad[par[i]], dist[i][j]);
+                rad[par[j]] = max(rad[par[j]], dist[i][j]);
                 far[i] = max(far[i], dist[i][j]);
                 far[j] = max(far[j], dist[i][j]);
             }
@@ -100,15 +103,17 @@ int main()
     }
     double ret = 1e20;
     for (int i = 0; i < N; i++) {
-        for (int j = i + 1; j < N; j++) {
+        for (int j = 0; j < N; j++) {
+            if (i == j) continue;
             if (par[i] != par[j]) {
                 double ans = max(max(rad[par[i]], rad[par[j]]), point[j].calcDist(point[i]) + far[i] + far[j]);
                 ret = min(ans, ret);
             }
         }
     }
+
     for (int i = 0; i < N; i++) {
-        if (rank[i] != 1) {
+        if (rank[par[i]] != 1) {
             ret = max(ret, rad[par[i]]);
         }
     }
